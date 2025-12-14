@@ -7,7 +7,7 @@ import os
 
 
 class FirmaView(ctk.CTkToplevel):
-    def __init__(self, path_pdf, on_firmar_callback=None):
+    def __init__(self, path_pdf, nombre_paciente=None, on_firmar_callback=None):
         super().__init__()
         
         self.attributes("-fullscreen", True)
@@ -16,6 +16,7 @@ class FirmaView(ctk.CTkToplevel):
         self.geometry("600x600")
         self.path_pdf = path_pdf
         self.on_firmar_callback = on_firmar_callback
+        self.nombre_paciente = nombre_paciente
 
         self.canvas_width = 500
         self.canvas_height = 200
@@ -28,8 +29,16 @@ class FirmaView(ctk.CTkToplevel):
         self.old_y = None
 
         # PDF info
-        self.label_info = ctk.CTkLabel(self, text=f"PDF listo para firma:\n{os.path.basename(path_pdf)}")
-        self.label_info.pack(pady=10)
+        texto_info = f"PDF listo para firma:\n{os.path.basename(path_pdf)}"
+        if self.nombre_paciente:
+            texto_info += f"\n\nPaciente:\n{self.nombre_paciente}"
+        self.label_info = ctk.CTkLabel(
+            self,
+            text=texto_info,
+            font=("Arial", 20),
+            justify="center"
+        )
+        self.label_info.pack(pady=15)
 
         # Canvas de firma
         self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bg="white")
