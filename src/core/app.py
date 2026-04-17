@@ -38,6 +38,8 @@ def lanzar_aplicacion():
 
     app = ctk.CTk()
     app.withdraw()
+    # Maximizar la ventana principal
+    app.state('zoomed')
 
     from core.bootstrap import hay_rutas_configuradas
     if not hay_rutas_configuradas():

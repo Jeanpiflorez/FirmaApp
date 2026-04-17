@@ -18,6 +18,11 @@ def procesar_pdf(path_pdf):
         nombre = os.path.basename(path_pdf)
         logger.info(f"Procesando archivo PDF: {nombre}")
         
+        # Verificar que el archivo existe y es accesible
+        if not os.path.exists(path_pdf):
+            logger.error(f"El archivo no existe: {path_pdf}")
+            return
+        
         if nombre.endswith("_CURL.pdf"):
             logger.info("El archivo requiere firma digital.")
 
@@ -42,6 +47,10 @@ def procesar_pdf(path_pdf):
         else:
             logger.warning(f"Archivo no reconocido y no procesado: {nombre}")
 
+    except PermissionError as e:
+        logger.error(f"Error de permisos al acceder al archivo {path_pdf}: {e}")
+        logger.error("El archivo puede estar abierto en otro programa o bloqueado por el sistema.")
+        logger.error("Por favor, cierre el archivo y espere unos segundos antes de procesarlo nuevamente.")
     except Exception:
         logger.exception("Error al procesar el PDF")
 

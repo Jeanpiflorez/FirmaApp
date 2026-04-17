@@ -2,3 +2,4 @@ watchdog
 customtkinter
 Pillow
 PyMuPDF
+PyPDF2

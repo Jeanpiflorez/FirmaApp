@@ -7,7 +7,9 @@ class RutasSetupView(ctk.CTkToplevel):
         super().__init__()
         self.title("Configurar rutas")
         self.geometry("500x400")
-        self.resizable(False, False)
+        # Maximizar la ventana
+        self.state('zoomed')
+        self.resizable(True, True)
 
         self.controller = RutasController()
         self.on_guardar_callback = on_guardar_callback

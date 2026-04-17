@@ -29,6 +29,50 @@ class MonitorCarpeta:
         except Exception as e:
             logger.exception(f"Error al iniciar el monitor de carpeta en {self.ruta}: {e}")
 
+    def _esperar_archivo_disponible(self, path_archivo, timeout=10, intervalo=0.5):
+        """
+        Espera a que un archivo esté completamente escrito y disponible para lectura.
+        
+        Args:
+            path_archivo: Ruta del archivo a verificar
+            timeout: Tiempo máximo de espera en segundos
+            intervalo: Intervalo entre verificaciones en segundos
+        """
+        tiempo_inicio = time.time()
+        tamanio_anterior = -1
+        
+        while time.time() - tiempo_inicio < timeout:
+            try:
+                # Verificar que el archivo existe
+                if not os.path.exists(path_archivo):
+                    time.sleep(intervalo)
+                    continue
+                
+                # Verificar que el tamaño del archivo no está cambiando
+                tamanio_actual = os.path.getsize(path_archivo)
+                
+                if tamanio_actual == tamanio_anterior and tamanio_actual > 0:
+                    # Intentar abrir el archivo para verificar que no está bloqueado
+                    try:
+                        with open(path_archivo, 'rb') as f:
+                            f.read(1)  # Leer 1 byte para verificar acceso
+                        logger.info(f"Archivo disponible para procesamiento: {path_archivo}")
+                        return True
+                    except PermissionError:
+                        logger.debug(f"Archivo aún bloqueado, esperando... {path_archivo}")
+                        time.sleep(intervalo)
+                        continue
+                
+                tamanio_anterior = tamanio_actual
+                time.sleep(intervalo)
+                
+            except Exception as e:
+                logger.warning(f"Error al verificar disponibilidad del archivo: {e}")
+                time.sleep(intervalo)
+        
+        logger.warning(f"Timeout esperando que el archivo esté disponible: {path_archivo}")
+        return False
+
     def _crear_event_handler(self):
         monitor = self
 
@@ -37,6 +81,8 @@ class MonitorCarpeta:
                 try:
                     if not event.is_directory and event.src_path.endswith(".pdf"):
                         logger.info(f"Archivo PDF detectado: {event.src_path}")
+                        # Esperar a que el archivo esté completamente escrito y disponible
+                        monitor._esperar_archivo_disponible(event.src_path)
                         monitor.callback(event.src_path)
                 except Exception as e:
                     logger.exception(f"Error al procesar archivo creado: {event.src_path}")

@@ -2,6 +2,8 @@
 
 from PyPDF2 import PdfReader
 import re
+import os
+import time
 
 def leer_texto_pdf(path_pdf):
     """
@@ -9,12 +11,14 @@ def leer_texto_pdf(path_pdf):
     """
     texto_completo = ""
 
-    reader = PdfReader(path_pdf)
-
-    for pagina in reader.pages:
-        texto_pagina = pagina.extract_text()
-        if texto_pagina:
-            texto_completo += texto_pagina + "\n"
+    # Usar context manager para asegurar que el archivo se cierre correctamente
+    with open(path_pdf, 'rb') as file:
+        reader = PdfReader(file)
+        
+        for pagina in reader.pages:
+            texto_pagina = pagina.extract_text()
+            if texto_pagina:
+                texto_completo += texto_pagina + "\n"
 
     return texto_completo
 

@@ -10,6 +10,13 @@ logger = configurar_logger()
 def insertar_firma_y_parentesco(path_pdf, firma_path, parentesco=None, output_path=None):
     try:
         logger.info(f"Iniciando inserción de firma en: {path_pdf}")
+        
+        # Verificar que el archivo existe y es accesible
+        if not os.path.exists(path_pdf):
+            raise FileNotFoundError(f"El archivo PDF no existe: {path_pdf}")
+        
+        if not os.path.exists(firma_path):
+            raise FileNotFoundError(f"La imagen de firma no existe: {firma_path}")
 
         doc = fitz.open(path_pdf)
         page = doc[0]
